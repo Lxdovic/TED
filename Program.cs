@@ -25,7 +25,8 @@ internal static class Program {
         return true;
     }
 
-    private static bool HandleBackspace(ObservableCollection<string> document, View view) {
+    private static bool HandleBackspace(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
         var start = view.CurrentCharacter;
         if (start == 0) {
             if (view.CurrentLine == 0)
@@ -50,7 +51,7 @@ internal static class Program {
         return true;
     }
 
-    private static bool HandleEnter(ObservableCollection<string> document, View view) {
+    private static bool HandleEnter(ObservableCollection<string> document, View view, ConsoleModifiers inputModifiers) {
         return InsertLine(document, view);
     }
 
@@ -66,36 +67,69 @@ internal static class Program {
         return true;
     }
 
-    private static bool HandleLeftArrow(ObservableCollection<string> document, View view) {
+    private static bool HandleLeftArrow(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
+        if (inputModifiers == ConsoleModifiers.Control) {
+            var line = document[view.CurrentLine];
+            var start = view.CurrentCharacter;
+            while (start > 0 && char.IsWhiteSpace(line[start - 1]))
+                start--;
+
+            while (start > 0 && !char.IsWhiteSpace(line[start - 1]))
+                start--;
+
+            view.CurrentCharacter = start;
+
+            return true;
+        }
+
         if (view.CurrentCharacter > 0)
             view.CurrentCharacter--;
 
         return true;
     }
 
-    private static bool HandleRightArrow(ObservableCollection<string> document, View view) {
+    private static bool HandleRightArrow(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
         var line = document[view.CurrentLine];
+        
+        if (inputModifiers == ConsoleModifiers.Control) {
+            var start = view.CurrentCharacter;
+            while (start < line.Length && char.IsWhiteSpace(line[start]))
+                start++;
+
+            while (start < line.Length && !char.IsWhiteSpace(line[start]))
+                start++;
+
+            view.CurrentCharacter = start;
+
+            return true;
+        }
+        
         if (view.CurrentCharacter <= line.Length - 1)
             view.CurrentCharacter++;
 
         return true;
     }
 
-    private static bool HandleUpArrow(ObservableCollection<string> document, View view) {
+    private static bool HandleUpArrow(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
         if (view.CurrentLine > 0)
             view.CurrentLine--;
 
         return true;
     }
 
-    private static bool HandleDownArrow(ObservableCollection<string> document, View view) {
+    private static bool HandleDownArrow(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
         if (view.CurrentLine < document.Count - 1)
             view.CurrentLine++;
 
         return true;
     }
 
-    private static bool HandleDelete(ObservableCollection<string> document, View view) {
+    private static bool HandleDelete(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
         var lineIndex = view.CurrentLine;
         var line = document[lineIndex];
         var start = view.CurrentCharacter;
@@ -119,13 +153,13 @@ internal static class Program {
 
     private static void HandleKeys(ConsoleKeyInfo input, ObservableCollection<string> document, View view) {
         _ = input.Key switch {
-            ConsoleKey.Backspace => HandleBackspace(document, view),
-            ConsoleKey.Enter => HandleEnter(document, view),
-            ConsoleKey.DownArrow => HandleDownArrow(document, view),
-            ConsoleKey.UpArrow => HandleUpArrow(document, view),
-            ConsoleKey.LeftArrow => HandleLeftArrow(document, view),
-            ConsoleKey.RightArrow => HandleRightArrow(document, view),
-            ConsoleKey.Delete => HandleDelete(document, view),
+            ConsoleKey.Backspace => HandleBackspace(document, view, input.Modifiers),
+            ConsoleKey.Enter => HandleEnter(document, view, input.Modifiers),
+            ConsoleKey.DownArrow => HandleDownArrow(document, view, input.Modifiers),
+            ConsoleKey.UpArrow => HandleUpArrow(document, view, input.Modifiers),
+            ConsoleKey.LeftArrow => HandleLeftArrow(document, view, input.Modifiers),
+            ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
+            ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
             _ => HandleTyping(document, view, input.KeyChar.ToString())
         };
     }
