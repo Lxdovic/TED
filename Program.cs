@@ -95,6 +95,28 @@ internal static class Program {
         return true;
     }
 
+    private static bool HandleDelete(ObservableCollection<string> document, View view) {
+        var lineIndex = view.CurrentLine;
+        var line = document[lineIndex];
+        var start = view.CurrentCharacter;
+
+        if (start >= line.Length) {
+            if (view.CurrentLine == document.Count - 1)
+                return false;
+
+            var nextLine = document[view.CurrentLine + 1];
+            document[view.CurrentLine] = nextLine;
+            document.RemoveAt(view.CurrentLine + 1);
+            return true;
+        }
+
+        var before = line.Substring(0, start);
+        var after = line.Substring(start + 1);
+        document[lineIndex] = before + after;
+
+        return true;
+    }
+
     private static void HandleKeys(ConsoleKeyInfo input, ObservableCollection<string> document, View view) {
         _ = input.Key switch {
             ConsoleKey.Backspace => HandleBackspace(document, view),
@@ -103,7 +125,7 @@ internal static class Program {
             ConsoleKey.UpArrow => HandleUpArrow(document, view),
             ConsoleKey.LeftArrow => HandleLeftArrow(document, view),
             ConsoleKey.RightArrow => HandleRightArrow(document, view),
-
+            ConsoleKey.Delete => HandleDelete(document, view),
             _ => HandleTyping(document, view, input.KeyChar.ToString())
         };
     }
