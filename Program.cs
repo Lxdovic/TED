@@ -3,72 +3,112 @@
 namespace TED;
 
 internal static class Program {
-    private static int _currentLine;
-
     private static void Main(string[] args) {
         Console.Clear();
 
         var document = new ObservableCollection<string> { "" };
+        var view = new View(RenderLine, document);
 
         while (true) {
-            var input = Console.ReadKey();
+            var input = Console.ReadKey(true);
 
-            HandleKeys(input, document);
+            HandleKeys(input, document, view);
         }
     }
 
-    private static bool HandleEnter(ObservableCollection<string> document) {
-        document[_currentLine] += "\n";
-        document.Add("");
-
-        _currentLine++;
+    private static bool HandleTyping(ObservableCollection<string> document, View view, string text) {
+        var lineIndex = view.CurrentLine;
+        var start = view.CurrentCharacter;
+        document[lineIndex] = document[lineIndex].Insert(start, text);
+        view.CurrentCharacter += text.Length;
 
         return true;
     }
 
-    private static bool HandleBackspace(ObservableCollection<string> document) {
-        if (document[_currentLine].Length == 0) {
-            if (_currentLine == 0) return false;
+    private static bool HandleBackspace(ObservableCollection<string> document, View view) {
+        var start = view.CurrentCharacter;
+        if (start == 0) {
+            if (view.CurrentLine == 0)
+                return false;
 
-            document.RemoveAt(_currentLine);
-            _currentLine--;
-            document[_currentLine] = document[_currentLine][..^1];
-
+            var currentLine = document[view.CurrentLine];
+            var previousLine = document[view.CurrentLine - 1];
+            document.RemoveAt(view.CurrentLine);
+            view.CurrentLine--;
+            document[view.CurrentLine] = previousLine + currentLine;
+            view.CurrentCharacter = previousLine.Length;
             return true;
         }
 
-        document[_currentLine] = document[_currentLine][..^1];
+        var lineIndex = view.CurrentLine;
+        var line = document[lineIndex];
+        var before = line.Substring(0, start - 1);
+        var after = line.Substring(start);
+        document[lineIndex] = before + after;
+        view.CurrentCharacter--;
 
         return true;
     }
 
-    private static bool HandleCharacter(char character, ObservableCollection<string> document) {
-        if (character < ' ') return false;
-        
-        document[_currentLine] += character;
+    private static bool HandleEnter(ObservableCollection<string> document, View view) {
+        return InsertLine(document, view);
+    }
+
+    private static bool InsertLine(ObservableCollection<string> document, View view) {
+        var remainder = document[view.CurrentLine].Substring(view.CurrentCharacter);
+        document[view.CurrentLine] = document[view.CurrentLine].Substring(0, view.CurrentCharacter);
+
+        var lineIndex = view.CurrentLine + 1;
+        document.Insert(lineIndex, remainder);
+        view.CurrentCharacter = 0;
+        view.CurrentLine = lineIndex;
 
         return true;
     }
 
-    private static void HandleKeys(ConsoleKeyInfo input, ObservableCollection<string> document) {
-        var operationSuccess = input.Key switch {
-            ConsoleKey.Enter => HandleEnter(document),
-            ConsoleKey.Backspace => HandleBackspace(document),
-            _ => HandleCharacter(input.KeyChar, document)
+    private static bool HandleLeftArrow(ObservableCollection<string> document, View view) {
+        if (view.CurrentCharacter > 0)
+            view.CurrentCharacter--;
+
+        return true;
+    }
+
+    private static bool HandleRightArrow(ObservableCollection<string> document, View view) {
+        var line = document[view.CurrentLine];
+        if (view.CurrentCharacter <= line.Length - 1)
+            view.CurrentCharacter++;
+
+        return true;
+    }
+
+    private static bool HandleUpArrow(ObservableCollection<string> document, View view) {
+        if (view.CurrentLine > 0)
+            view.CurrentLine--;
+
+        return true;
+    }
+
+    private static bool HandleDownArrow(ObservableCollection<string> document, View view) {
+        if (view.CurrentLine < document.Count - 1)
+            view.CurrentLine++;
+
+        return true;
+    }
+
+    private static void HandleKeys(ConsoleKeyInfo input, ObservableCollection<string> document, View view) {
+        _ = input.Key switch {
+            ConsoleKey.Backspace => HandleBackspace(document, view),
+            ConsoleKey.Enter => HandleEnter(document, view),
+            ConsoleKey.DownArrow => HandleDownArrow(document, view),
+            ConsoleKey.UpArrow => HandleUpArrow(document, view),
+            ConsoleKey.LeftArrow => HandleLeftArrow(document, view),
+            ConsoleKey.RightArrow => HandleRightArrow(document, view),
+
+            _ => HandleTyping(document, view, input.KeyChar.ToString())
         };
-        
-        if (operationSuccess) RenderDocument(document);
     }
 
-    private static void RenderDocument(ObservableCollection<string> document) {
-        Console.Clear();
-
-        foreach (var line in document) RenderLine(line);
-
-        Console.CursorTop = _currentLine;
-    }
-
-    public static void RenderLine(string line) {
+    private static void RenderLine(string line) {
         Console.Write(line);
     }
 }
