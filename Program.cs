@@ -45,23 +45,23 @@ internal static class Program {
             return true;
         }
 
-        // if (start == 0) {
-        //     if (view.CurrentLine == 0)
-        //         return false;
-        //
-        //     var currentLine = document[view.CurrentLine];
-        //     var previousLine = document[view.CurrentLine - 1];
-        //     document.RemoveAt(view.CurrentLine);
-        //     view.CurrentLine--;
-        //     document[view.CurrentLine] = previousLine + currentLine;
-        //     view.CurrentCharacter = previousLine.Length;
-        //     return true;
-        // }
-        //
-        // var before = line.Substring(0, start - 1);
-        // var after = line.Substring(start);
-        // document[view.CurrentLine] = before + after;
-        // view.CurrentCharacter--;
+        if (start == 0) {
+            if (view.CurrentLine == 0)
+                return false;
+
+            var currentLine = document[view.CurrentLine];
+            var previousLine = document[view.CurrentLine - 1];
+            document.RemoveAt(view.CurrentLine);
+            view.CurrentLine--;
+            document[view.CurrentLine] = previousLine + currentLine;
+            view.CurrentCharacter = previousLine.Length;
+            return true;
+        }
+
+        var before = line.Substring(0, start - 1);
+        var after = line.Substring(start);
+        document[view.CurrentLine] = before + after;
+        view.CurrentCharacter--;
 
         return true;
     }
