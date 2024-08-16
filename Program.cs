@@ -27,26 +27,79 @@ internal static class Program {
 
     private static bool HandleBackspace(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
+        var line = document[view.CurrentLine];
         var start = view.CurrentCharacter;
-        if (start == 0) {
-            if (view.CurrentLine == 0)
-                return false;
 
-            var currentLine = document[view.CurrentLine];
-            var previousLine = document[view.CurrentLine - 1];
-            document.RemoveAt(view.CurrentLine);
-            view.CurrentLine--;
-            document[view.CurrentLine] = previousLine + currentLine;
-            view.CurrentCharacter = previousLine.Length;
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            while (start > 0 && char.IsWhiteSpace(line[start - 1]))
+                start--;
+
+            while (start > 0 && !char.IsWhiteSpace(line[start - 1]))
+                start--;
+
+            var cBefore = line.Substring(0, start);
+            var cAfter = line.Substring(view.CurrentCharacter);
+            document[view.CurrentLine] = cBefore + cAfter;
+            view.CurrentCharacter = start;
+
+            return true;
+        }
+
+        // if (start == 0) {
+        //     if (view.CurrentLine == 0)
+        //         return false;
+        //
+        //     var currentLine = document[view.CurrentLine];
+        //     var previousLine = document[view.CurrentLine - 1];
+        //     document.RemoveAt(view.CurrentLine);
+        //     view.CurrentLine--;
+        //     document[view.CurrentLine] = previousLine + currentLine;
+        //     view.CurrentCharacter = previousLine.Length;
+        //     return true;
+        // }
+        //
+        // var before = line.Substring(0, start - 1);
+        // var after = line.Substring(start);
+        // document[view.CurrentLine] = before + after;
+        // view.CurrentCharacter--;
+
+        return true;
+    }
+
+    private static bool HandleDelete(ObservableCollection<string> document, View view,
+        ConsoleModifiers inputModifiers) {
+        var line = document[view.CurrentLine];
+        var start = view.CurrentCharacter;
+
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            while (start < line.Length && char.IsWhiteSpace(line[start]))
+                start++;
+
+            while (start < line.Length && !char.IsWhiteSpace(line[start]))
+                start++;
+
+            var cBefore = line.Substring(0, view.CurrentCharacter);
+            var cAfter = line.Substring(start);
+            document[view.CurrentLine] = cBefore + cAfter;
+
             return true;
         }
 
         var lineIndex = view.CurrentLine;
-        var line = document[lineIndex];
-        var before = line.Substring(0, start - 1);
-        var after = line.Substring(start);
+
+        if (start >= line.Length) {
+            if (view.CurrentLine == document.Count - 1)
+                return false;
+
+            var nextLine = document[view.CurrentLine + 1];
+            document[view.CurrentLine] = nextLine;
+            document.RemoveAt(view.CurrentLine + 1);
+            return true;
+        }
+
+        var before = line.Substring(0, start);
+        var after = line.Substring(start + 1);
         document[lineIndex] = before + after;
-        view.CurrentCharacter--;
 
         return true;
     }
@@ -69,7 +122,7 @@ internal static class Program {
 
     private static bool HandleLeftArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
-        if (inputModifiers == ConsoleModifiers.Control) {
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             var line = document[view.CurrentLine];
             var start = view.CurrentCharacter;
             while (start > 0 && char.IsWhiteSpace(line[start - 1]))
@@ -92,8 +145,8 @@ internal static class Program {
     private static bool HandleRightArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
         var line = document[view.CurrentLine];
-        
-        if (inputModifiers == ConsoleModifiers.Control) {
+
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             var start = view.CurrentCharacter;
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
@@ -105,7 +158,7 @@ internal static class Program {
 
             return true;
         }
-        
+
         if (view.CurrentCharacter <= line.Length - 1)
             view.CurrentCharacter++;
 
@@ -124,29 +177,6 @@ internal static class Program {
         ConsoleModifiers inputModifiers) {
         if (view.CurrentLine < document.Count - 1)
             view.CurrentLine++;
-
-        return true;
-    }
-
-    private static bool HandleDelete(ObservableCollection<string> document, View view,
-        ConsoleModifiers inputModifiers) {
-        var lineIndex = view.CurrentLine;
-        var line = document[lineIndex];
-        var start = view.CurrentCharacter;
-
-        if (start >= line.Length) {
-            if (view.CurrentLine == document.Count - 1)
-                return false;
-
-            var nextLine = document[view.CurrentLine + 1];
-            document[view.CurrentLine] = nextLine;
-            document.RemoveAt(view.CurrentLine + 1);
-            return true;
-        }
-
-        var before = line.Substring(0, start);
-        var after = line.Substring(start + 1);
-        document[lineIndex] = before + after;
 
         return true;
     }
