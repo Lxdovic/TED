@@ -105,10 +105,13 @@ internal static class Program {
     }
 
     private static bool HandleEnter(ObservableCollection<string> document, View view, ConsoleModifiers inputModifiers) {
-        return InsertLine(document, view);
-    }
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            document.Insert(view.CurrentLine + 1, "");
+            view.CurrentLine++;
 
-    private static bool InsertLine(ObservableCollection<string> document, View view) {
+            return true;
+        }
+
         var remainder = document[view.CurrentLine].Substring(view.CurrentCharacter);
         document[view.CurrentLine] = document[view.CurrentLine].Substring(0, view.CurrentCharacter);
 
