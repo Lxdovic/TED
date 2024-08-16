@@ -30,7 +30,7 @@ internal static class Program {
         var line = document[view.CurrentLine];
         var start = view.CurrentCharacter;
 
-        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control) && start > 0) {
             while (start > 0 && char.IsWhiteSpace(line[start - 1]))
                 start--;
 
@@ -71,7 +71,7 @@ internal static class Program {
         var line = document[view.CurrentLine];
         var start = view.CurrentCharacter;
 
-        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control) && start < line.Length) {
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
 
@@ -92,7 +92,7 @@ internal static class Program {
                 return false;
 
             var nextLine = document[view.CurrentLine + 1];
-            document[view.CurrentLine] = nextLine;
+            document[view.CurrentLine] = line + nextLine;
             document.RemoveAt(view.CurrentLine + 1);
             return true;
         }
@@ -125,6 +125,16 @@ internal static class Program {
 
     private static bool HandleLeftArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
+        if (view.CurrentCharacter == 0) {
+            if (view.CurrentLine == 0)
+                return false;
+
+            view.CurrentLine--;
+            view.CurrentCharacter = document[view.CurrentLine].Length;
+
+            return true;
+        }
+
         if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             var line = document[view.CurrentLine];
             var start = view.CurrentCharacter;
@@ -139,15 +149,28 @@ internal static class Program {
             return true;
         }
 
-        if (view.CurrentCharacter > 0)
+        if (view.CurrentCharacter > 0) {
             view.CurrentCharacter--;
 
-        return true;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool HandleRightArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
         var line = document[view.CurrentLine];
+
+        if (view.CurrentCharacter == line.Length) {
+            if (view.CurrentLine == document.Count - 1)
+                return false;
+
+            view.CurrentLine++;
+            view.CurrentCharacter = 0;
+
+            return true;
+        }
 
         if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             var start = view.CurrentCharacter;
