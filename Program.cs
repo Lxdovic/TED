@@ -4,9 +4,13 @@ namespace TED;
 
 internal static class Program {
     private static void Main(string[] args) {
-        Console.Clear();
-
-        var document = new ObservableCollection<string> { "" };
+        if (args.Length == 0) {
+            Console.WriteLine("Usage: ted <filename>");
+            return;
+        }
+        
+        var filePath = args[0];
+        var document = new ObservableCollection<string>(File.ReadAllLines(filePath));
         var view = new View(RenderLine, document);
 
         while (true) {
