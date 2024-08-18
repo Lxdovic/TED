@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-namespace TED;
+namespace TED.Core;
 
 internal sealed class View {
     private readonly int _cursorTop;
