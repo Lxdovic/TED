@@ -4,19 +4,40 @@ using System.Collections.Specialized;
 namespace TED.Core;
 
 internal sealed class View {
-    private readonly int _cursorTop;
     private readonly ObservableCollection<string> _document;
     private readonly Action<string> _lineRenderer;
     private int _currentCharacter;
     private int _currentLine;
-    private int _renderedLineCount;
+    private int _viewBottom = Console.WindowHeight - 1;
+    private int _viewTop;
 
     public View(Action<string> lineRenderer, ObservableCollection<string> document) {
         _lineRenderer = lineRenderer;
         _document = document;
         _document.CollectionChanged += DocumentChanged;
-        _cursorTop = Console.CursorTop;
         Render();
+    }
+
+    public int ViewTop {
+        get => _viewTop;
+        set {
+            if (_viewTop != value) {
+                _viewTop = value;
+                _viewBottom = _viewTop + Console.WindowHeight - 1;
+                Render();
+            }
+        }
+    }
+
+    public int ViewBottom {
+        get => _viewBottom;
+        set {
+            if (_viewBottom != value) {
+                _viewBottom = value;
+                _viewTop = _viewBottom - Console.WindowHeight + 1;
+                Render();
+            }
+        }
     }
 
     public int CurrentLine {
@@ -25,6 +46,10 @@ internal sealed class View {
             if (_currentLine != value) {
                 _currentLine = value;
                 _currentCharacter = Math.Min(_document[_currentLine].Length, _currentCharacter);
+
+                if (_currentLine < ViewTop)
+                    ViewTop = _currentLine;
+                else if (_currentLine >= ViewBottom) ViewBottom = _currentLine + 1;
 
                 UpdateCursorPosition();
             }
@@ -48,35 +73,20 @@ internal sealed class View {
     private void Render() {
         Console.CursorVisible = false;
 
-        var lineCount = 0;
+        Console.Clear();
 
-        foreach (var line in _document) {
-            Console.SetCursorPosition(0, _cursorTop + lineCount);
+        for (var i = ViewTop; i < ViewBottom; i++) {
+            if (i >= _document.Count) break;
 
-            _lineRenderer(line);
-
-            Console.WriteLine(new string(' ', Console.WindowWidth - line.Length));
-
-            lineCount++;
+            _lineRenderer(_document[i]);
         }
-
-        var numberOfBlankLines = _renderedLineCount - lineCount;
-        if (numberOfBlankLines > 0) {
-            var blankLine = new string(' ', Console.WindowWidth);
-            for (var i = 0; i < numberOfBlankLines; i++) {
-                Console.SetCursorPosition(0, _cursorTop + lineCount + i);
-                Console.WriteLine(blankLine);
-            }
-        }
-
-        _renderedLineCount = lineCount;
 
         Console.CursorVisible = true;
         UpdateCursorPosition();
     }
 
     private void UpdateCursorPosition() {
-        Console.CursorTop = _cursorTop + _currentLine;
-        Console.CursorLeft = _currentCharacter;
+        Console.CursorTop = Math.Max(CurrentLine - ViewTop, 0);
+        Console.CursorLeft = CurrentCharacter;
     }
 }

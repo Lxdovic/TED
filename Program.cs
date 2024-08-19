@@ -1,11 +1,13 @@
 ﻿using System.Collections.ObjectModel;
 using TED.Core;
-using TED.Ui;
 
 namespace TED;
 
 internal static class Program {
     private static void Main(string[] args) {
+        Console.Clear();
+        Console.CancelKeyPress += (_, _) => Console.Clear();
+
         if (args.Length == 0) {
             Console.WriteLine("Usage: ted <filename>");
             return;
@@ -20,7 +22,7 @@ internal static class Program {
 
             HandleKeys(input, document, view);
 
-            BottomBar.Render($"Line: {view.CurrentLine} Col: {view.CurrentCharacter}");
+            // BottomBar.Render($"Line: {view.CurrentLine} Col: {view.CurrentCharacter}");
         }
     }
 
@@ -209,8 +211,7 @@ internal static class Program {
 
     private static bool HandleDownArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
-        if (view.CurrentLine < document.Count - 1)
-            view.CurrentLine++;
+        if (view.CurrentLine < document.Count - 1) view.CurrentLine++;
 
         return true;
     }
@@ -229,6 +230,6 @@ internal static class Program {
     }
 
     private static void RenderLine(string line) {
-        Console.Write(line);
+        Console.WriteLine(line);
     }
 }
