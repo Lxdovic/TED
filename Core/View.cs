@@ -8,6 +8,7 @@ internal sealed class View {
     private readonly Action<string> _lineRenderer;
     private int _currentCharacter;
     private int _currentLine;
+    private int _targetCurrentCharacter;
     private int _viewBottom = Console.WindowHeight - 1;
     private int _viewTop;
 
@@ -45,7 +46,7 @@ internal sealed class View {
         set {
             if (_currentLine != value) {
                 _currentLine = value;
-                _currentCharacter = Math.Min(_document[_currentLine].Length, _currentCharacter);
+                _currentCharacter = Math.Min(_document[_currentLine].Length, _targetCurrentCharacter);
 
                 if (_currentLine < ViewTop)
                     ViewTop = _currentLine;
@@ -61,6 +62,8 @@ internal sealed class View {
         set {
             if (_currentCharacter != value) {
                 _currentCharacter = value;
+                _targetCurrentCharacter = value;
+
                 UpdateCursorPosition();
             }
         }
