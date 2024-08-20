@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using TED.Core;
+using TED.Ui;
 
 namespace TED;
 
@@ -15,18 +16,22 @@ internal static class Program {
 
         var filePath = args[0];
         var document = new ObservableCollection<string>(File.ReadAllLines(filePath));
-        var view = new View(RenderLine, document);
+        var view = new View(document);
 
         while (true) {
             var input = Console.ReadKey(true);
 
             HandleKeys(input, document, view);
 
-            // BottomBar.Render($"Line: {view.CurrentLine} Col: {view.CurrentCharacter}");
+            BottomBar.Render(
+                $"Line: {view.CurrentLine} Col: {view.CurrentCharacter}");
         }
     }
 
-    private static bool HandleTyping(ObservableCollection<string> document, View view, string text) {
+    private static bool HandleTyping(ObservableCollection<string> document, View view, char character) {
+        if (character < ' ') return false;
+
+        var text = character.ToString();
         var lineIndex = view.CurrentLine;
         var start = view.CurrentCharacter;
         document[lineIndex] = document[lineIndex].Insert(start, text);
@@ -203,14 +208,25 @@ internal static class Program {
 
     private static bool HandleUpArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
-        if (view.CurrentLine > 0)
-            view.CurrentLine--;
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            view.ViewTop = Math.Max(0, view.ViewTop - 1);
+
+            return true;
+        }
+
+        if (view.CurrentLine > 0) view.CurrentLine--;
 
         return true;
     }
 
     private static bool HandleDownArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            view.ViewBottom = Math.Min(document.Count, view.ViewBottom + 1);
+
+            return true;
+        }
+
         if (view.CurrentLine < document.Count - 1) view.CurrentLine++;
 
         return true;
@@ -225,11 +241,7 @@ internal static class Program {
             ConsoleKey.LeftArrow => HandleLeftArrow(document, view, input.Modifiers),
             ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
             ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
-            _ => HandleTyping(document, view, input.KeyChar.ToString())
+            _ => HandleTyping(document, view, input.KeyChar)
         };
-    }
-
-    private static void RenderLine(string line) {
-        Console.WriteLine(line);
     }
 }
