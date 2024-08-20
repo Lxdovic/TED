@@ -5,15 +5,15 @@ namespace TED.Core;
 
 internal sealed class View {
     private readonly ObservableCollection<string> _document;
-    private readonly Action<string> _lineRenderer;
     private int _currentCharacter;
     private int _currentLine;
     private int _targetCurrentCharacter;
     private int _viewBottom = Console.WindowHeight - 1;
+    private int _viewLeft;
+    private int _viewRight = Console.WindowWidth - 1;
     private int _viewTop;
 
-    public View(Action<string> lineRenderer, ObservableCollection<string> document) {
-        _lineRenderer = lineRenderer;
+    public View(ObservableCollection<string> document) {
         _document = document;
         _document.CollectionChanged += DocumentChanged;
         Render();
@@ -48,8 +48,7 @@ internal sealed class View {
                 _currentLine = value;
                 _currentCharacter = Math.Min(_document[_currentLine].Length, _targetCurrentCharacter);
 
-                if (_currentLine < ViewTop)
-                    ViewTop = _currentLine;
+                if (_currentLine < ViewTop) ViewTop = _currentLine;
                 else if (_currentLine >= ViewBottom) ViewBottom = _currentLine + 1;
 
                 UpdateCursorPosition();
@@ -64,7 +63,32 @@ internal sealed class View {
                 _currentCharacter = value;
                 _targetCurrentCharacter = value;
 
+                if (_currentCharacter < ViewLeft) ViewLeft = _currentCharacter;
+                else if (_currentCharacter > ViewRight) ViewRight = _currentCharacter;
+
                 UpdateCursorPosition();
+            }
+        }
+    }
+
+    public int ViewLeft {
+        get => _viewLeft;
+        set {
+            if (_viewLeft != value && value >= 0) {
+                _viewLeft = value;
+                _viewRight = _viewLeft + Console.WindowWidth - 1;
+                Render();
+            }
+        }
+    }
+
+    public int ViewRight {
+        get => _viewRight;
+        set {
+            if (_viewRight != value) {
+                _viewRight = value;
+                _viewLeft = _viewRight - Console.WindowWidth + 1;
+                Render();
             }
         }
     }
@@ -81,7 +105,12 @@ internal sealed class View {
         for (var i = ViewTop; i < ViewBottom; i++) {
             if (i >= _document.Count) break;
 
-            _lineRenderer(_document[i]);
+            var line = _document[i];
+            var startIndex = Math.Min(line.Length, ViewLeft);
+            var length = Math.Max(0, Math.Min(line.Length - ViewLeft, Console.WindowWidth));
+
+            var displayLine = line.Substring(startIndex, length);
+            Console.WriteLine(displayLine);
         }
 
         Console.CursorVisible = true;
@@ -89,7 +118,14 @@ internal sealed class View {
     }
 
     private void UpdateCursorPosition() {
-        Console.CursorTop = Math.Max(CurrentLine - ViewTop, 0);
-        Console.CursorLeft = CurrentCharacter;
+        var cursorTop = Math.Max(CurrentLine - ViewTop, 0);
+        var cursorLeft = Math.Max(CurrentCharacter - ViewLeft, 0);
+
+        // Ensure cursor position is within console buffer bounds
+        cursorTop = Math.Min(cursorTop, Console.BufferHeight - 1);
+        cursorLeft = Math.Min(cursorLeft, Console.BufferWidth - 1);
+
+        Console.CursorTop = cursorTop;
+        Console.CursorLeft = cursorLeft;
     }
 }
