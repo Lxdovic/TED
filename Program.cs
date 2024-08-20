@@ -1,11 +1,14 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using TED.Core;
 using TED.Ui;
 
 namespace TED;
 
 internal static class Program {
-    private static void Main(string[] args) {
+    private static string? _filePath;
+    private static ObservableCollection<string>? _document;
+
+    private static void Main(string?[] args) {
         Console.Clear();
         Console.CancelKeyPress += (_, _) => Console.Clear();
 
@@ -14,14 +17,14 @@ internal static class Program {
             return;
         }
 
-        var filePath = args[0];
-        var document = new ObservableCollection<string>(File.ReadAllLines(filePath));
-        var view = new View(document);
+        _filePath = args[0];
+        _document = new ObservableCollection<string>(File.ReadAllLines(_filePath!));
+        var view = new View(_document);
 
         while (true) {
             var input = Console.ReadKey(true);
 
-            HandleKeys(input, document, view);
+            HandleKeys(input, _document, view);
 
             BottomBar.Render(
                 $"Line: {view.CurrentLine} Col: {view.CurrentCharacter} input: {input.Key} {input.Modifiers}");
@@ -242,7 +245,26 @@ internal static class Program {
             ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
             ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
             ConsoleKey.None => false,
-            _ => HandleTyping(document, view, input.KeyChar)
+            _ => HandleInput(document, view, input)
         };
+    }
+
+    private static bool HandleInput(ObservableCollection<string> document, View view, ConsoleKeyInfo input) {
+        if (input.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+            _ = input.Key switch {
+                ConsoleKey.S => HandleSave(document),
+                _ => false
+            };
+
+            return true;
+        }
+
+        return HandleTyping(document, view, input.KeyChar);
+    }
+
+    private static bool HandleSave(ObservableCollection<string> document) {
+        File.WriteAllLines(_filePath!, document);
+
+        return true;
     }
 }

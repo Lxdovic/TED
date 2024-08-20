@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 namespace TED.Core;
 
 internal sealed class View {
-    private readonly ObservableCollection<string> _document;
+    private readonly ObservableCollection<string>? _document;
     private int _currentCharacter;
     private int _currentLine;
     private int _targetCurrentCharacter;
@@ -13,9 +13,9 @@ internal sealed class View {
     private int _viewRight = Console.WindowWidth - 1;
     private int _viewTop;
 
-    public View(ObservableCollection<string> document) {
+    public View(ObservableCollection<string>? document) {
         _document = document;
-        _document.CollectionChanged += DocumentChanged;
+        _document!.CollectionChanged += DocumentChanged;
         Render();
     }
 
@@ -46,7 +46,7 @@ internal sealed class View {
         set {
             if (_currentLine != value) {
                 _currentLine = value;
-                _currentCharacter = Math.Min(_document[_currentLine].Length, _targetCurrentCharacter);
+                _currentCharacter = Math.Min(_document![_currentLine].Length, _targetCurrentCharacter);
 
                 if (_currentLine < ViewTop) ViewTop = _currentLine;
                 else if (_currentLine >= ViewBottom) ViewBottom = _currentLine + 1;
@@ -103,7 +103,7 @@ internal sealed class View {
         Console.Clear();
 
         for (var i = ViewTop; i < ViewBottom; i++) {
-            if (i >= _document.Count) break;
+            if (i >= _document!.Count) break;
 
             var line = _document[i];
             var startIndex = Math.Min(line.Length, ViewLeft);
