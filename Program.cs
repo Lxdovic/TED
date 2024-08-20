@@ -24,7 +24,7 @@ internal static class Program {
             HandleKeys(input, document, view);
 
             BottomBar.Render(
-                $"Line: {view.CurrentLine} Col: {view.CurrentCharacter}");
+                $"Line: {view.CurrentLine} Col: {view.CurrentCharacter} input: {input.Key} {input.Modifiers}");
         }
     }
 
@@ -208,11 +208,11 @@ internal static class Program {
 
     private static bool HandleUpArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
-        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
-            view.ViewTop = Math.Max(0, view.ViewTop - 1);
-
-            return true;
-        }
+        // if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+        //     view.ViewTop = Math.Max(0, view.ViewTop - 1);
+        //
+        //     return true;
+        // }
 
         if (view.CurrentLine > 0) view.CurrentLine--;
 
@@ -221,11 +221,11 @@ internal static class Program {
 
     private static bool HandleDownArrow(ObservableCollection<string> document, View view,
         ConsoleModifiers inputModifiers) {
-        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
-            view.ViewBottom = Math.Min(document.Count, view.ViewBottom + 1);
-
-            return true;
-        }
+        // if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+        //     view.ViewBottom = Math.Min(document.Count, view.ViewBottom + 1);
+        //
+        //     return true;
+        // }
 
         if (view.CurrentLine < document.Count - 1) view.CurrentLine++;
 
@@ -241,6 +241,7 @@ internal static class Program {
             ConsoleKey.LeftArrow => HandleLeftArrow(document, view, input.Modifiers),
             ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
             ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
+            ConsoleKey.None => false,
             _ => HandleTyping(document, view, input.KeyChar)
         };
     }
