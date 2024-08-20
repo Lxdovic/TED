@@ -113,19 +113,17 @@ internal sealed class View {
             Console.WriteLine(displayLine);
         }
 
-        Console.CursorVisible = true;
         UpdateCursorPosition();
+        Console.CursorVisible = true;
     }
 
     private void UpdateCursorPosition() {
         var cursorTop = Math.Max(CurrentLine - ViewTop, 0);
         var cursorLeft = Math.Max(CurrentCharacter - ViewLeft, 0);
 
-        // Ensure cursor position is within console buffer bounds
         cursorTop = Math.Min(cursorTop, Console.BufferHeight - 1);
         cursorLeft = Math.Min(cursorLeft, Console.BufferWidth - 1);
 
-        Console.CursorTop = cursorTop;
-        Console.CursorLeft = cursorLeft;
+        Console.SetCursorPosition(cursorLeft, cursorTop);
     }
 }
