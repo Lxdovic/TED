@@ -8,6 +8,10 @@ internal static class Program {
     private static string? _filePath;
     private static ObservableCollection<string>? _document;
 
+    private static readonly List<char> _stopChars = new() {
+        '.', '!', '?', '<', '>', '(', ')', '[', ']', '{', '}', ';', ':', ',', '-'
+    };
+
     private static void Main(string?[] args) {
         Console.Clear();
         Console.CancelKeyPress += (_, _) => Console.Clear();
@@ -156,11 +160,15 @@ internal static class Program {
         if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             var line = document[view.CurrentLine];
             var start = view.CurrentCharacter;
+
             while (start > 0 && char.IsWhiteSpace(line[start - 1]))
                 start--;
 
-            while (start > 0 && !char.IsWhiteSpace(line[start - 1]))
+            while (start > 0 && !char.IsWhiteSpace(line[start - 1])) {
                 start--;
+
+                if (_stopChars.Contains(line[start - 1])) break;
+            }
 
             view.CurrentCharacter = start;
 
@@ -195,8 +203,11 @@ internal static class Program {
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
 
-            while (start < line.Length && !char.IsWhiteSpace(line[start]))
+            while (start < line.Length && !char.IsWhiteSpace(line[start])) {
                 start++;
+
+                if (_stopChars.Contains(line[start])) break;
+            }
 
             view.CurrentCharacter = start;
 
