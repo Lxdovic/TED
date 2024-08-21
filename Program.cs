@@ -235,6 +235,18 @@ internal static class Program {
         return true;
     }
 
+    private static bool HandleEnd(ObservableCollection<string> document, View view, ConsoleModifiers inputModifiers) {
+        if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
+            view.CurrentLine = document.Count - 1;
+
+            return true;
+        }
+
+        view.CurrentCharacter = document[view.CurrentLine].Length;
+
+        return true;
+    }
+
     private static void HandleKeys(ConsoleKeyInfo input, ObservableCollection<string> document, View view) {
         _ = input.Key switch {
             ConsoleKey.Backspace => HandleBackspace(document, view, input.Modifiers),
@@ -244,6 +256,7 @@ internal static class Program {
             ConsoleKey.LeftArrow => HandleLeftArrow(document, view, input.Modifiers),
             ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
             ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
+            ConsoleKey.End => HandleEnd(document, view, input.Modifiers),
             ConsoleKey.None => false,
             _ => HandleInput(document, view, input)
         };
