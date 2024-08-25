@@ -206,7 +206,7 @@ internal static class Program {
             while (start < line.Length && !char.IsWhiteSpace(line[start])) {
                 start++;
 
-                if (_stopChars.Contains(line[start])) break;
+                if (start >= line.Length || _stopChars.Contains(line[start])) break;
             }
 
             view.CurrentCharacter = start;
