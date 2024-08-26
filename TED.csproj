@@ -7,4 +7,16 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="TreeSitter" Version="1.0.0"/>
+        <PackageReference Include="TreeSitter.JavaScript" Version="1.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="resources\**">
+            <Pack>True</Pack>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
 </Project>

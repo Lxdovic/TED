@@ -1,10 +1,14 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using TED.TreeSitter;
+using TreeSitter;
 
 namespace TED.Core;
 
 internal sealed class View {
     private readonly ObservableCollection<string>? _document;
+
+    private readonly Language language = CLanguage.Create();
     private int _currentCharacter;
     private int _currentLine;
     private int _targetCurrentCharacter;
@@ -98,22 +102,29 @@ internal sealed class View {
     }
 
     private void Render() {
-        Console.CursorVisible = false;
+        var parser = new Parser { Language = language };
+        var tree = parser.Parse(@"
+            const test = 2 + 2;
+        ");
 
-        Console.Clear();
+        Console.WriteLine(tree.Root.ToString());
 
-        for (var i = ViewTop; i < ViewBottom; i++) {
-            if (i >= _document!.Count) break;
+        // Console.CursorVisible = false;
+        //
+        // Console.Clear();
+        //
+        // for (var i = ViewTop; i < ViewBottom; i++) {
+        //     if (i >= _document!.Count) break;
+        //
+        //     var line = _document[i];
+        //     var startIndex = Math.Min(line.Length, ViewLeft);
+        //     var length = Math.Max(0, Math.Min(line.Length - ViewLeft, Console.WindowWidth));
+        //
+        //     var displayLine = line.Substring(startIndex, length);
+        //     Console.WriteLine(displayLine);
+        // }
 
-            var line = _document[i];
-            var startIndex = Math.Min(line.Length, ViewLeft);
-            var length = Math.Max(0, Math.Min(line.Length - ViewLeft, Console.WindowWidth));
-
-            var displayLine = line.Substring(startIndex, length);
-            Console.WriteLine(displayLine);
-        }
-
-        UpdateCursorPosition();
+        // UpdateCursorPosition();
         Console.CursorVisible = true;
     }
 
