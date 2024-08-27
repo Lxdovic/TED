@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using TED.TreeSitter;
 using TreeSitter;
+using TreeSitter.C;
 
 namespace TED.Core;
 
@@ -107,7 +107,7 @@ internal sealed class View {
             const test = 2 + 2;
         ");
 
-        Console.WriteLine(tree.Root.ToString());
+        foreach (var node in tree.Root.Children) Console.WriteLine(node.Kind);
 
         // Console.CursorVisible = false;
         //

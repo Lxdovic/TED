@@ -8,7 +8,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="tree-sitter" Version="0.4.19"/>
+        <PackageReference Include="tree-sitter-c" Version="0.4.19"/>
         <PackageReference Include="TreeSitter" Version="1.0.0"/>
+        <PackageReference Include="TreeSitter.C" Version="1.0.0"/>
         <PackageReference Include="TreeSitter.JavaScript" Version="1.0.0"/>
     </ItemGroup>
 
