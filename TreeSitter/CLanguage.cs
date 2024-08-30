@@ -1,10 +1,9 @@
 using System.Runtime.InteropServices;
-using TreeSitter;
 
 namespace TED.TreeSitter;
 
 public class CLanguage {
-    private const string DllName = "resources/libtree-sitter.so";
+    private const string DllName = "resources/tree-sitter-c.so";
 
     [DllImport(DllName)]
     private static extern IntPtr tree_sitter_c();

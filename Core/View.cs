@@ -1,14 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using TED.TreeSitter;
 using TreeSitter;
-using TreeSitter.C;
 
 namespace TED.Core;
 
 internal sealed class View {
     private readonly ObservableCollection<string>? _document;
 
-    private readonly Language language = CLanguage.Create();
     private int _currentCharacter;
     private int _currentLine;
     private int _targetCurrentCharacter;
@@ -102,12 +101,25 @@ internal sealed class View {
     }
 
     private void Render() {
+        var language = CLanguage.Create();
         var parser = new Parser { Language = language };
         var tree = parser.Parse(@"
-            const test = 2 + 2;
+            in main() {
+                int a = 1;
+                int b = 2;
+                int c = a + b;
+            }
         ");
 
-        foreach (var node in tree.Root.Children) Console.WriteLine(node.Kind);
+
+        // get all tokens
+        var cursor = tree.Root.Walk();
+        var tokens = new List<object>();
+
+        while (cursor.GotoFirstChild()) tokens.Add(cursor.Current);
+
+        foreach (var token in tokens) Console.WriteLine(token);
+
 
         // Console.CursorVisible = false;
         //
