@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TED", "TED.csproj", "{07BECF19-28CD-4269-95FD-A58B742D2FE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TED", "TED/TED.csproj", "{07BECF19-28CD-4269-95FD-A58B742D2FE5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Highlight", "Highlight/Highlight.csproj", "{ADAB0EB9-82EE-492D-8FE6-2566D6E1B45F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +14,9 @@ Global
 		{07BECF19-28CD-4269-95FD-A58B742D2FE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07BECF19-28CD-4269-95FD-A58B742D2FE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07BECF19-28CD-4269-95FD-A58B742D2FE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADAB0EB9-82EE-492D-8FE6-2566D6E1B45F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADAB0EB9-82EE-492D-8FE6-2566D6E1B45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADAB0EB9-82EE-492D-8FE6-2566D6E1B45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADAB0EB9-82EE-492D-8FE6-2566D6E1B45F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

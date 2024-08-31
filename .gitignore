@@ -2,5 +2,5 @@
 .idea
 
 # Compiled output
-bin/
-obj/
+**/bin/
+**/obj/

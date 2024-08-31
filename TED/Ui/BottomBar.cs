@@ -1,3 +1,5 @@
+using System;
+
 namespace TED.Ui;
 
 public static class BottomBar {

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using TED.TreeSitter;
-using TreeSitter;
+using System.Linq;
+using Highlight;
+using TED.Syntax;
 
 namespace TED.Core;
 
@@ -101,42 +103,26 @@ internal sealed class View {
     }
 
     private void Render() {
-        var language = CLanguage.Create();
-        var parser = new Parser { Language = language };
-        var tree = parser.Parse(@"
-            in main() {
-                int a = 1;
-                int b = 2;
-                int c = a + b;
-            }
-        ");
+        var highlighter = new Highlighter(new CustomEngine());
+        var highlightedCode = highlighter.Highlight("C#", _document!.Aggregate((a, b) => a + "\n" + b)).Split("\n");
 
+        Console.CursorVisible = false;
 
-        // get all tokens
-        var cursor = tree.Root.Walk();
-        var tokens = new List<object>();
+        Console.Clear();
 
-        while (cursor.GotoFirstChild()) tokens.Add(cursor.Current);
+        for (var i = ViewTop; i < ViewBottom; i++) {
+            if (i >= highlightedCode.Length) break;
 
-        foreach (var token in tokens) Console.WriteLine(token);
+            var line = highlightedCode[i];
+            var startIndex = Math.Min(line.Length, ViewLeft);
+            var length = Math.Max(0, Math.Min(line.Length - ViewLeft, Console.WindowWidth));
 
+            var displayLine = line.Substring(startIndex, length);
+            Console.WriteLine(displayLine);
+        }
 
-        // Console.CursorVisible = false;
-        //
-        // Console.Clear();
-        //
-        // for (var i = ViewTop; i < ViewBottom; i++) {
-        //     if (i >= _document!.Count) break;
-        //
-        //     var line = _document[i];
-        //     var startIndex = Math.Min(line.Length, ViewLeft);
-        //     var length = Math.Max(0, Math.Min(line.Length - ViewLeft, Console.WindowWidth));
-        //
-        //     var displayLine = line.Substring(startIndex, length);
-        //     Console.WriteLine(displayLine);
-        // }
+        UpdateCursorPosition();
 
-        // UpdateCursorPosition();
         Console.CursorVisible = true;
     }
 
