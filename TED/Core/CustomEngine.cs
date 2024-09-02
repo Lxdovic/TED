@@ -2,7 +2,7 @@
 using Highlight.Engines;
 using Highlight.Patterns;
 
-namespace TED.Syntax;
+namespace TED.Core;
 
 public class CustomEngine : Engine {
     protected override string PreHighlight(Definition definition, string input) {
@@ -19,7 +19,6 @@ public class CustomEngine : Engine {
 
     protected override string ProcessBlockPatternMatch(Definition definition, BlockPattern pattern, Match match) {
         var color = pattern.Style.Colors.ForeColor;
-
 
         return "\x1b[38;2;" + color.R + ";" + color.G + ";" + color.B + "m" + match.Value + "\x1b[0m";
     }
@@ -38,9 +37,5 @@ public class CustomEngine : Engine {
         var color = pattern.Style.Colors.ForeColor;
 
         return "\x1b[38;2;" + color.R + ";" + color.G + ";" + color.B + "m" + match.Value + "\x1b[0m";
-    }
-
-    private string ProcessMarkupPatternAttributeMatches(Definition definition, MarkupPattern pattern, Match match) {
-        return "";
     }
 }

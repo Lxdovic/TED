@@ -10,9 +10,8 @@ namespace TED;
 internal static class Program {
     private static string? _filePath;
     private static ObservableCollection<string>? _document;
-
     private static readonly List<char> _stopChars = new() {
-        '.', '!', '?', '<', '>', '(', ')', '[', ']', '{', '}', ';', ':', ',', '-'
+        '.', '!', '?', '<', '>', '(', ')', '[', ']', '{', '}', ';', ':', ','
     };
 
     private static void Main(string?[] args) {
