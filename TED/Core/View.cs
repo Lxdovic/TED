@@ -8,6 +8,7 @@ namespace TED.Core;
 
 internal sealed class View {
     private readonly ObservableCollection<string>? _document;
+    private readonly int _maxLineIndexDigits;
     private int _currentCharacter;
     private int _currentLine;
 
@@ -19,6 +20,7 @@ internal sealed class View {
 
     public View(ObservableCollection<string>? document) {
         _document = document;
+        _maxLineIndexDigits = (int)Math.Floor(Math.Log10(document!.Count) + 1);
         _document!.CollectionChanged += DocumentChanged;
         Render();
     }
@@ -161,12 +163,16 @@ internal sealed class View {
 
         Console.Clear();
 
-        foreach (var line in highlightedCode) {
+        for (var index = 0; index < highlightedCode.Length; index++) {
+            var line = highlightedCode[index];
             var startIndex = Math.Min(GetVisibleLength(line), ViewLeft);
-            var length = Math.Max(0, Math.Min(GetVisibleLength(line) - ViewLeft, Console.WindowWidth));
+            var length = Math.Max(0,
+                Math.Min(GetVisibleLength(line) - ViewLeft, Console.WindowWidth - _maxLineIndexDigits - 1));
 
             var displayLine = GetVisibleSubstring(line, startIndex, length);
-            Console.WriteLine(displayLine);
+            var printString = string.Format($"{{0,{_maxLineIndexDigits}}} {{1}}", ViewTop + index + 1, displayLine);
+
+            Console.WriteLine(printString);
         }
 
         UpdateCursorPosition();
@@ -176,7 +182,7 @@ internal sealed class View {
 
     private void UpdateCursorPosition() {
         var cursorTop = Math.Max(CurrentLine - ViewTop, 0);
-        var cursorLeft = Math.Max(CurrentCharacter - ViewLeft, 0);
+        var cursorLeft = Math.Max(CurrentCharacter - ViewLeft + _maxLineIndexDigits + 1, 0); // Adjust for line numbers
 
         cursorTop = Math.Min(cursorTop, Console.BufferHeight - 1);
         cursorLeft = Math.Min(cursorLeft, Console.BufferWidth - 1);
