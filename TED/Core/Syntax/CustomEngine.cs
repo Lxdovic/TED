@@ -2,7 +2,7 @@
 using Highlight.Engines;
 using Highlight.Patterns;
 
-namespace TED.Core;
+namespace TED.Core.Syntax;
 
 public class CustomEngine : Engine {
     protected override string PreHighlight(Definition definition, string input) {

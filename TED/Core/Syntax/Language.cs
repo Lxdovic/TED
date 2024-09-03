@@ -1,7 +1,7 @@
 namespace TED.Core.Syntax;
 
 public static class Language {
-    private static readonly Dictionary<string, string> _extensionsToLanguages = new() {
+    private static readonly Dictionary<string, string> ExtensionsToLanguages = new() {
         { ".aspx", "ASPX" },
         { ".c", "C" },
         { ".cpp", "C++" },
@@ -28,7 +28,7 @@ public static class Language {
     };
 
     public static string GetLanguageFromFileExtension(string fileName) {
-        _extensionsToLanguages.TryGetValue(Path.GetExtension(fileName), out var language);
+        ExtensionsToLanguages.TryGetValue(Path.GetExtension(fileName), out var language);
 
         return language ?? "Plain Text";
     }

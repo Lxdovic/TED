@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Highlight;
+using TED.Core.Syntax;
 
 namespace TED.Core;
 

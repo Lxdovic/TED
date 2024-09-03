@@ -18,7 +18,7 @@ internal static class Editor {
         Console.CancelKeyPress += (_, _) => Console.Clear();
 
         if (args.Length == 0) {
-            Console.WriteLine("Usage: ted <filename>");
+            Console.WriteLine(@"Usage: ted <filename>");
             return;
         }
 
