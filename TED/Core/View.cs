@@ -7,9 +7,9 @@ namespace TED.Core;
 
 internal sealed class View {
     private readonly ObservableCollection<string>? _document;
-
     private int _currentCharacter;
     private int _currentLine;
+
     private int _targetCurrentCharacter;
     private int _viewBottom = Console.WindowHeight - 1;
     private int _viewLeft;
@@ -154,7 +154,7 @@ internal sealed class View {
     private void Render() {
         var documentInView = string.Join(Environment.NewLine, _document!.Skip(ViewTop).Take(ViewBottom - ViewTop));
         var highlighter = new Highlighter(new CustomEngine());
-        var highlightedCode = highlighter.Highlight("C#", documentInView).Split(Environment.NewLine);
+        var highlightedCode = highlighter.Highlight(Editor.CurrentLanguage, documentInView).Split(Environment.NewLine);
 
         Console.CursorVisible = false;
 
