@@ -112,16 +112,33 @@ internal sealed class View {
         var visibleLength = 0;
         var visibleStartIndex = 0;
         var visibleEndIndex = input.Length;
+        var activeAnsiCodes = new List<string>();
 
         for (var i = 0; i < input.Length; i++) {
             if (matches.Any(m => m.Index == i)) {
-                i += matches.First(m => m.Index == i).Length - 1;
+                var match = matches.First(m => m.Index == i);
+                activeAnsiCodes.Add(match.Value);
+                i += match.Length - 1;
                 continue;
             }
 
-            if (visibleLength == startIndex) visibleStartIndex = i;
+            if (visibleLength == startIndex) {
+                visibleStartIndex = i;
+                break;
+            }
 
-            if (visibleLength == startIndex + length) {
+            visibleLength++;
+        }
+
+        visibleLength = 0;
+        for (var i = visibleStartIndex; i < input.Length; i++) {
+            if (matches.Any(m => m.Index == i)) {
+                var match = matches.First(m => m.Index == i);
+                i += match.Length - 1;
+                continue;
+            }
+
+            if (visibleLength == length) {
                 visibleEndIndex = i;
                 break;
             }
@@ -129,7 +146,9 @@ internal sealed class View {
             visibleLength++;
         }
 
-        return input.Substring(visibleStartIndex, visibleEndIndex - visibleStartIndex);
+        var visibleSubstring = input.Substring(visibleStartIndex, visibleEndIndex - visibleStartIndex);
+        var resetCode = "\x1b[0m";
+        return string.Join(string.Empty, activeAnsiCodes) + visibleSubstring + resetCode;
     }
 
     private void Render() {
