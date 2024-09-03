@@ -122,13 +122,13 @@ internal sealed class View {
 
         return builder.ToString();
     }
-    
+
     private int GetVisibleLength(string input) {
         var ansiEscapeCodePattern = @"\x1b\[[0-9;]*m";
         var plainText = Regex.Replace(input, ansiEscapeCodePattern, string.Empty);
         return plainText.Length;
     }
-    
+
     private string GetVisibleSubstring(string input, int startIndex, int length) {
         var ansiEscapeCodePattern = @"\x1b\[[0-9;]*m";
         var matches = Regex.Matches(input, ansiEscapeCodePattern);
@@ -136,15 +136,13 @@ internal sealed class View {
         var visibleStartIndex = 0;
         var visibleEndIndex = input.Length;
 
-        for (int i = 0; i < input.Length; i++) {
+        for (var i = 0; i < input.Length; i++) {
             if (matches.Any(m => m.Index == i)) {
                 i += matches.First(m => m.Index == i).Length - 1;
                 continue;
             }
 
-            if (visibleLength == startIndex) {
-                visibleStartIndex = i;
-            }
+            if (visibleLength == startIndex) visibleStartIndex = i;
 
             if (visibleLength == startIndex + length) {
                 visibleEndIndex = i;
@@ -158,7 +156,7 @@ internal sealed class View {
     }
 
     private void Render() {
-        var documentInView = string.Join(Environment.NewLine, _document!.Skip(ViewTop).Take(ViewBottom - ViewTop - 2));
+        var documentInView = string.Join(Environment.NewLine, _document!.Skip(ViewTop).Take(ViewBottom - ViewTop));
         var highlighter = new Highlighter(new CustomEngine());
         var highlightedCode = highlighter.Highlight("C#", documentInView).Split(Environment.NewLine);
 
