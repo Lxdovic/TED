@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Text;
 using System.Text.RegularExpressions;
 using Highlight;
 
@@ -99,28 +98,6 @@ internal sealed class View {
 
     private void DocumentChanged(object? sender, NotifyCollectionChangedEventArgs e) {
         Render();
-    }
-
-    private string EscapeIt(string value) {
-        var builder = new StringBuilder();
-        foreach (var cur in value)
-            switch (cur) {
-                case '\t':
-                    builder.Append(@"\t");
-                    break;
-                case '\r':
-                    builder.Append(@"\r");
-                    break;
-                case '\n':
-                    builder.Append(@"\n");
-                    break;
-                // etc ...
-                default:
-                    builder.Append(cur);
-                    break;
-            }
-
-        return builder.ToString();
     }
 
     private int GetVisibleLength(string input) {
