@@ -4,6 +4,8 @@ using TED.Ui;
 
 namespace TED.Core;
 
+// hello world
+
 internal static class Editor {
     private static string? _filePath;
     private static ObservableCollection<string>? _document;
@@ -38,16 +40,12 @@ internal static class Editor {
         }
     }
 
-    private static bool HandleTyping(ObservableCollection<string> document, View view, char character) {
-        if (character < ' ') return false;
-
+    private static void HandleTyping(ObservableCollection<string> document, View view, char character) {
         var text = character.ToString();
         var lineIndex = view.CurrentLine;
         var start = view.CurrentCharacter;
         document[lineIndex] = document[lineIndex].Insert(start, text);
         view.CurrentCharacter += text.Length;
-
-        return true;
     }
 
     private static bool HandleBackspace(ObservableCollection<string> document, View view,
@@ -274,20 +272,16 @@ internal static class Editor {
             _ => false
         };
 
-        if (input.Key != ConsoleKey.Backspace && input.KeyChar >= ' ') HandleInput(document, view, input);
+        if (input.Key != ConsoleKey.Backspace && input.KeyChar >= ' ') HandleTyping(document, view, input.KeyChar);
+        else HandleControls(document, view, input);
     }
 
-    private static bool HandleInput(ObservableCollection<string> document, View view, ConsoleKeyInfo input) {
-        if (input.Modifiers.HasFlag(ConsoleModifiers.Control)) {
+    private static void HandleControls(ObservableCollection<string> document, View view, ConsoleKeyInfo input) {
+        if (input.Modifiers.HasFlag(ConsoleModifiers.Control))
             _ = input.Key switch {
                 ConsoleKey.S => HandleSave(document),
                 _ => false
             };
-
-            return true;
-        }
-
-        return HandleTyping(document, view, input.KeyChar);
     }
 
     private static bool HandleSave(ObservableCollection<string> document) {
