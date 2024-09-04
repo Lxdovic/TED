@@ -271,9 +271,10 @@ internal static class Editor {
             ConsoleKey.RightArrow => HandleRightArrow(document, view, input.Modifiers),
             ConsoleKey.Delete => HandleDelete(document, view, input.Modifiers),
             ConsoleKey.End => HandleEnd(document, view, input.Modifiers),
-            ConsoleKey.None => false,
-            _ => HandleInput(document, view, input)
+            _ => false
         };
+
+        if (input.Key != ConsoleKey.Backspace && input.KeyChar >= ' ') HandleInput(document, view, input);
     }
 
     private static bool HandleInput(ObservableCollection<string> document, View view, ConsoleKeyInfo input) {
