@@ -170,9 +170,12 @@ internal sealed class View {
                 Math.Min(GetVisibleLength(line) - ViewLeft, Console.WindowWidth - _maxLineIndexDigits - 1));
 
             var displayLine = GetVisibleSubstring(line, startIndex, length);
-            var printString = string.Format($"{{0,{_maxLineIndexDigits}}} {{1}}", ViewTop + index + 1, displayLine);
+            var lineNumber = string.Format($"{{0,{_maxLineIndexDigits}}}", ViewTop + index + 1);
 
-            Console.WriteLine(printString);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write(lineNumber);
+            Console.ResetColor();
+            Console.WriteLine($@" {displayLine}");
         }
 
         UpdateCursorPosition();
