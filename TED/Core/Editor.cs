@@ -4,8 +4,6 @@ using TED.Ui;
 
 namespace TED.Core;
 
-// hello world
-
 internal static class Editor {
     private static string? _filePath;
     private static ObservableCollection<string>? _document;
