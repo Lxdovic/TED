@@ -13,8 +13,8 @@ public class BottomBar {
         var cursorPosition = Console.GetCursorPosition();
 
         Console.SetCursorPosition(0, Console.WindowHeight - 1);
-        Console.BackgroundColor = ConsoleColor.DarkGray;
-        Console.ForegroundColor = ConsoleColor.White;
+        // Console.BackgroundColor = ConsoleColor.DarkGray;
+        // Console.ForegroundColor = ConsoleColor.White;
         
         var cumulativeWidth = 0;
         
@@ -26,11 +26,11 @@ public class BottomBar {
                 break;
             }
             
-            Console.Write(column.Text.PadRight(column.Width));
+            // Console.Write(column.Text.PadRight(column.Width));
         }
         
-        Console.Write("".PadRight(Console.WindowWidth - cumulativeWidth));
-        Console.ResetColor();
+        // Console.Write("".PadRight(Console.WindowWidth - cumulativeWidth));
+        // Console.ResetColor();
         Console.SetCursorPosition(cursorPosition.Left, cursorPosition.Top);
     }
 }
