@@ -7,6 +7,8 @@ namespace TED.Core;
 internal static class Editor {
     private static string? _filePath;
     private static ObservableCollection<string>? _document;
+    private static readonly Stack<string[]> _forwardDocumentHistory = new();
+    private static readonly Stack<string[]> _backwardDocumentHistory = new();
     public static string CurrentLanguage = "Plain Text";
 
     private static readonly List<char> StopChars = new() {
@@ -16,6 +18,7 @@ internal static class Editor {
     public static void Run(string?[] args) {
         Console.Clear();
         Console.CancelKeyPress += (_, _) => Console.Clear();
+        Console.TreatControlCAsInput = true;
 
         if (args.Length == 0) {
             Console.WriteLine(@"Usage: ted <filename>");
@@ -38,10 +41,27 @@ internal static class Editor {
         }
     }
 
+    private static void ForwardDocumentHistory() {
+        if (_forwardDocumentHistory.Count == 0) return;
+
+        _backwardDocumentHistory.Push(_document!.ToArray());
+        _document = new ObservableCollection<string>(_forwardDocumentHistory.Pop());
+    }
+
+    private static void BackwardDocumentHistory() {
+        if (_backwardDocumentHistory.Count == 0) return;
+
+        _forwardDocumentHistory.Push(_document!.ToArray());
+        _document = new ObservableCollection<string>(_backwardDocumentHistory.Pop());
+    }
+
     private static void HandleTyping(ObservableCollection<string> document, View view, char character) {
         var text = character.ToString();
         var lineIndex = view.CurrentLine;
         var start = view.CurrentCharacter;
+
+        ForwardDocumentHistory();
+
         document[lineIndex] = document[lineIndex].Insert(start, text);
         view.CurrentCharacter += text.Length;
     }
@@ -50,6 +70,8 @@ internal static class Editor {
         ConsoleModifiers inputModifiers) {
         var line = document[view.CurrentLine];
         var start = view.CurrentCharacter;
+
+        ForwardDocumentHistory();
 
         if (inputModifiers.HasFlag(ConsoleModifiers.Control) && start > 0) {
             while (start > 0 && char.IsWhiteSpace(line[start - 1]))
@@ -92,6 +114,8 @@ internal static class Editor {
         var line = document[view.CurrentLine];
         var start = view.CurrentCharacter;
 
+        ForwardDocumentHistory();
+
         if (inputModifiers.HasFlag(ConsoleModifiers.Control) && start < line.Length) {
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
@@ -126,6 +150,8 @@ internal static class Editor {
     }
 
     private static bool HandleEnter(ObservableCollection<string> document, View view, ConsoleModifiers inputModifiers) {
+        ForwardDocumentHistory();
+
         if (inputModifiers.HasFlag(ConsoleModifiers.Control)) {
             document.Insert(view.CurrentLine + 1, "");
             view.CurrentLine++;
@@ -278,8 +304,19 @@ internal static class Editor {
         if (input.Modifiers.HasFlag(ConsoleModifiers.Control))
             _ = input.Key switch {
                 ConsoleKey.S => HandleSave(document),
+                ConsoleKey.Z => HandleUndo(input),
                 _ => false
             };
+    }
+
+    private static bool HandleUndo(ConsoleKeyInfo input) {
+        if (input.Modifiers.HasFlag(ConsoleModifiers.Shift)) {
+            BackwardDocumentHistory();
+            return true;
+        }
+
+        ForwardDocumentHistory();
+        return true;
     }
 
     private static bool HandleSave(ObservableCollection<string> document) {
