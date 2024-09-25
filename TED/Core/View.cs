@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Highlight;
 using TED.Core.Syntax;
+using Highlighter = TED.Core.Syntax.Highlighter;
 
 namespace TED.Core;
 
@@ -153,33 +154,41 @@ internal sealed class View {
         var resetCode = "\x1b[0m";
         return string.Join(string.Empty, activeAnsiCodes) + visibleSubstring + resetCode;
     }
-
     private void Render() {
-        var documentInView = string.Join(Environment.NewLine, _document!.Skip(ViewTop).Take(ViewBottom - ViewTop));
-        var highlighter = new Highlighter(new CustomEngine());
-        var highlightedCode = highlighter.Highlight(Editor.CurrentLanguage, documentInView).Split(Environment.NewLine);
+        // var documentInView = string.Join(Environment.NewLine, _document!.Skip(ViewTop).Take(ViewBottom - ViewTop));
 
+        // new Highlighter().Test();
+        // var highlighter = new Highlighter(new CustomEngine());
+        // var highlightedCode = highlighter.Highlight(Editor.CurrentLanguage, documentInView).Split(Environment.NewLine);
+        
         Console.CursorVisible = false;
-
+        
         Console.Clear();
+        
+        foreach (var line in _document!.Skip(ViewTop).Take(ViewBottom - ViewTop)) {
+            var highlightedLine = new Highlighter().Highlight(line);
 
-        for (var index = 0; index < highlightedCode.Length; index++) {
-            var line = highlightedCode[index];
-            var startIndex = Math.Min(GetVisibleLength(line), ViewLeft);
-            var length = Math.Max(0,
-                Math.Min(GetVisibleLength(line) - ViewLeft, Console.WindowWidth - _maxLineIndexDigits - 1));
-
-            var displayLine = GetVisibleSubstring(line, startIndex, length);
-            var lineNumber = string.Format($"{{0,{_maxLineIndexDigits}}}", ViewTop + index + 1);
-
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.Write(lineNumber);
-            Console.ResetColor();
-            Console.WriteLine($@" {displayLine}");
+            Console.WriteLine(highlightedLine);
+            
         }
-
+        
+        // for (var index = 0; index < highlightedCode.Length; index++) {
+        //     var line = highlightedCode[index];
+        //     var startIndex = Math.Min(GetVisibleLength(line), ViewLeft);
+        //     var length = Math.Max(0,
+        //         Math.Min(GetVisibleLength(line) - ViewLeft, Console.WindowWidth - _maxLineIndexDigits - 1));
+        //
+        //     var displayLine = GetVisibleSubstring(line, startIndex, length);
+        //     var lineNumber = string.Format($"{{0,{_maxLineIndexDigits}}}", ViewTop + index + 1);
+        //
+        //     Console.ForegroundColor = ConsoleColor.DarkGray;
+        //     Console.Write(lineNumber);
+        //     Console.ResetColor();
+        //     Console.WriteLine($@" {displayLine}");
+        // }
+        
         UpdateCursorPosition();
-
+        
         Console.CursorVisible = true;
     }
 

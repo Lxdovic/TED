@@ -10,6 +10,7 @@ internal static class Editor {
     private static readonly Stack<string[]> _forwardDocumentHistory = new();
     private static readonly Stack<string[]> _backwardDocumentHistory = new();
     public static string CurrentLanguage = "Plain Text";
+    public static BottomBar BottomBar = new();
 
     private static readonly List<char> StopChars = new() {
         '.', '!', '?', '<', '>', '(', ')', '[', ']', '{', '}', ';', ':', ','
@@ -35,9 +36,23 @@ internal static class Editor {
             var input = Console.ReadKey(true);
 
             HandleKeys(input, _document, view);
-
-            BottomBar.Render(
-                $"Line: {view.CurrentLine} Col: {view.CurrentCharacter} input: {input.Key} {input.Modifiers}");
+            
+            BottomBar.Columns.Push(new Column {
+                Text = $" Line: {view.CurrentLine} Col: {view.CurrentCharacter}",
+                Width = 16
+            });
+            
+            BottomBar.Columns.Push(new Column {
+                Text = $" Language: {CurrentLanguage} |",
+                Width = 16
+            });
+            
+            BottomBar.Columns.Push(new Column {
+                Text = $" {DateTime.Now} |",
+                Width = 40
+            });
+            
+            BottomBar.Render();
         }
     }
 
